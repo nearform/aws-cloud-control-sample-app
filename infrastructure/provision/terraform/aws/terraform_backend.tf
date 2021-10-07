@@ -1,0 +1,1 @@
+/Users/techshedie/git/nearform/aws-cloud-control-sample-app/infrastructure/environment/sample-app/terraform_backend.tf
