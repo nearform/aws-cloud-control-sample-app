@@ -7,7 +7,7 @@ terraform {
     key            = "terraform-state-sample-app.json"
     region         = "eu-west-1"
     encrypt        = true
-    dynamodb_table = "terraform-state-lock"
+    dynamodb_table = "platform-state-lock"
     profile        = "nearform-platform"
   }
 }
