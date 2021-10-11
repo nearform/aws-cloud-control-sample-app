@@ -1,26 +1,38 @@
-resource "aws_apprunner_auto_scaling_configuration_version" "hello" {
-  auto_scaling_configuration_name = "hello"
+resource "aws_apprunner_auto_scaling_configuration_version" "artist-info-auto-scaling-conf" {
+  auto_scaling_configuration_name = "artist-info-scaling-conf"
   # scale between 1-5 containers
   min_size = 1
   max_size = 5
 }
 
+resource "aws_apprunner_service" "artist-info" {
+  service_name = "artist-info"
 
-resource "aws_apprunner_service" "hello" {
-  auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.hello.arn
-
-  service_name = "hello-app-runner"
+  auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.artist-info-auto-scaling-conf.arn
 
   source_configuration {
-    image_repository {
-      image_configuration {
-        port = "8000"
-      }
-
-      image_identifier      = "public.ecr.aws/aws-containers/hello-app-runner:latest"
-      image_repository_type = "ECR_PUBLIC"
+    authentication_configuration {
+      connection_arn = var.app_runner_github_connection_arn
     }
+    code_repository {
+      code_configuration {
+        code_configuration_values {
+          build_command = "npm install && npm run build"
+          port          = "5000"
+          runtime       = "NODEJS_12"
+          start_command = "npm run serve"
+        }
+        configuration_source = "API"
+      }
+      repository_url = "https://github.com/nearform/aws-cloud-control-sample-app"
+      source_code_version {
+        type  = "BRANCH"
+        value = "infra/scaffolding"
+      }
+    }
+  }
 
-    auto_deployments_enabled = false
+  tags = {
+    Name = "artist-info-apprunner-service"
   }
 }
