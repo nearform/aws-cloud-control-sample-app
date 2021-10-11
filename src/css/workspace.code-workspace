@@ -1,0 +1,35 @@
+{
+  "folders": [
+	{
+		"path": "../../../get-jwks"
+	},
+	{
+		"path": "../../../mercurius-apollo-tracing"
+	},
+	{
+		"path": "../../../../../miboss"
+	},
+	{
+		"path": "../../../../../redio-dev"
+	},
+	{
+		"path": "../../../mercurius"
+	},
+	{
+		"path": "../../../../../scratch"
+	},
+	{
+		"path": "../../../thisartist"
+	},
+	{
+		"path": "../../../../../cakesdemo"
+	},
+	{
+		"path": "../../../../../cakes"
+	},
+	{
+		"path": "../.."
+	}
+],
+  "settings": {}
+}
