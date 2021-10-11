@@ -22,6 +22,9 @@ nodejs12
 ```
 npm install
 npm run build
-npm run serve
 ```
 
+`run`
+```
+npm run serve
+```
