@@ -33,6 +33,9 @@ override.tf.json
 **terraform.plan
 **.tfstate
 
+infrastructure/provision/terraform/aws/terraform.tfvars
+infrastructure/provision/terraform/aws/terraform_backend.tf
+
 # Node
 node_modules
 build

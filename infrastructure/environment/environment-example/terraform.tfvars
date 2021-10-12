@@ -1,3 +1,3 @@
 region              = "eu-west-1"
-aws_profile_name    = "profile"
-iac_environment_tag = "environment"
+aws_profile_name    = "nearform-platform" # profile name as configured in your ~/.aws/credentials
+iac_environment_tag = "development"
