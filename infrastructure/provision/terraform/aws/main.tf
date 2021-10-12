@@ -5,6 +5,15 @@ resource "aws_apprunner_auto_scaling_configuration_version" "artist-info-auto-sc
   max_size = 5
 }
 
+resource "aws_apprunner_connection" "artist-info" {
+  connection_name = "aws-apprunner-integration"
+  provider_type   = "GITHUB"
+
+  tags = {
+    Name = "artist-info-apprunner-connection"
+  }
+}
+
 resource "aws_apprunner_service" "artist-info" {
   service_name = "artist-info"
 
@@ -12,7 +21,8 @@ resource "aws_apprunner_service" "artist-info" {
 
   source_configuration {
     authentication_configuration {
-      connection_arn = var.app_runner_github_connection_arn
+      connection_arn = aws_apprunner_connection.artist-info.arn
+      # connection_arn = var.app_runner_github_connection_arn
     }
     code_repository {
       code_configuration {
