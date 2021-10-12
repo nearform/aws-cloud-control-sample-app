@@ -6,6 +6,7 @@ Uses <a href="https://vitejs.dev/">vite</a> and
     Runner via docker. Functionally, it uses Musicbrainz API to find info and links for any
     musical artist known in its databases.
 
+
 ## Required for App Runner config:
 
 `runtime`
