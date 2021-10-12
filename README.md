@@ -55,6 +55,15 @@ Assuming the plan outlined on screen reflects changes that need to be made, you 
 bash bin/deploy_infra.sh [environment-folder-name] create
 ```
 
+---
+**Note:**
+When `auto_deployments_enabled` is set to `true` in main.tf, each repository change (new image version) starts a deployment. Should you set `auto_deployment_enabled` to `false`, you will need to manually update the `image_identifier` in main.tf to point to the latest container image to deploy and rerun the following
+
+```
+bash bin/deploy_infra.sh [environment-folder-name] create
+```
+---
+
 ## How to remove
 
 1. Run the following commands, replacing ```[environment-folder-name]``` accordingly:
