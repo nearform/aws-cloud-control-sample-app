@@ -28,5 +28,5 @@ data "template_file" "ecr_iam_policy_file" {
 
 resource "aws_iam_role_policy_attachment" "apprunner" {
   role       = aws_iam_role.ecr_apprunner_role.name
-  policy_arn = aws_iam_policy.ecr-policy.arn
+  policy_arn = aws_iam_policy.ecr_policy.arn
 }
