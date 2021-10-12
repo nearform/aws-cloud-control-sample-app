@@ -1,18 +1,19 @@
 {
-  "name": "artistinfo",
-  "version": "0.0.0",
-  "main": "src/main.jsx",
+  "name": "artist-info",
+  "version": "1.0.0",
+  "main": "main.jsx",
+  "description": "A sample app for a docker image in App Runner",
+  "author": "Jeremy Sharp <jeremy.sharp@nearform.com>",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview",
-    "debug": "vite build"
+    "serve": "vite preview"
   },
   "dependencies": {
     "axios": "^0.22.0",
     "bootstrap": "^5.1.1",
     "react": "^17.0.0",
-    "react-bootstrap": "^1.6.4",
+    "react-bootstrap": "^2.0.0-rc.0",
     "react-dom": "^17.0.0"
   },
   "devDependencies": {
