@@ -32,3 +32,12 @@ override.tf.json
 **.terraform
 **terraform.plan
 **.tfstate
+
+# Node
+node_modules
+build
+npm-debug.log
+dist
+
+# Mac
+.DS_Store

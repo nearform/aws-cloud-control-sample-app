@@ -1,3 +1,5 @@
+
+
 resource "aws_apprunner_auto_scaling_configuration_version" "artist-info-auto-scaling-conf" {
   auto_scaling_configuration_name = "artist-info-scaling-conf"
   # scale between 1-5 containers
@@ -6,33 +8,23 @@ resource "aws_apprunner_auto_scaling_configuration_version" "artist-info-auto-sc
 }
 
 resource "aws_apprunner_service" "artist-info" {
-  service_name = "artist-info"
-
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.artist-info-auto-scaling-conf.arn
+
+  service_name = "artist-info"
 
   source_configuration {
     authentication_configuration {
-      connection_arn = var.app_runner_connection_arn
+      access_role_arn = aws_iam_role.ecr_apprunner_role.arn
     }
-    code_repository {
-      code_configuration {
-        code_configuration_values {
-          build_command = "npm install && npm run build"
-          port          = "5000"
-          runtime       = "NODEJS_12"
-          start_command = "npm run serve"
-        }
-        configuration_source = "API"
+    image_repository {
+      image_configuration {
+        port = "5000"
       }
-      repository_url = "https://github.com/nearform/aws-cloud-control-sample-app"
-      source_code_version {
-        type  = "BRANCH"
-        value = "infra/scaffolding"
-      }
-    }
-  }
 
-  tags = {
-    Name = "artist-info-apprunner-service"
+      image_identifier      = "932192134344.dkr.ecr.eu-west-1.amazonaws.com/artist-info"
+      image_repository_type = "ECR"
+    }
+
+    auto_deployments_enabled = false
   }
 }
