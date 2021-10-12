@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 data "aws_iam_policy_document" "apprunner-assume-role-policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -19,11 +21,10 @@ resource "aws_iam_policy" "ecr_policy" {
   path        = "/"
   description = "ecr-policy"
 
-  policy = data.template_file.ecr_iam_policy_file.rendered
-}
-
-data "template_file" "ecr_iam_policy_file" {
-  template = file("${path.module}/templates/iam_ecr_policy.json")
+  policy = templatefile("${path.module}/templates/iam_ecr_policy.json", {
+    region     = var.region
+    account_id = data.aws_caller_identity.current.account_id
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "apprunner" {
