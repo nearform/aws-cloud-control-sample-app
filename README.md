@@ -30,4 +30,48 @@ npm run build
 npm run serve
 ```
 
+## How to provision and deploy (Terraform)
+
+## Prerequisites
+
+* Install Terraform - https://releases.hashicorp.com/terraform/0.15.2/terraform_0.15.2_darwin_amd64.zip
+* Configure your AWS credentials (aws_access_key_id, aws_secret_access_key) on your local machine and update the aws profile name accordingly in the terraform.tfvars file
+
+## How to deploy
+
+1. Duplicate the example environment folder (environment-example) and name it accordingly for new the application.
+
+2. Update variables configured in ```terraform.tfvars``` and ```terraform_backend.tf``` to ensure variables are correct for your new application
+
+3. Run the following commands, replacing ```[environment-folder-name]``` accordingly:
+
+```
+cd infrastructure/
+bash bin/deploy_infra.sh [environment-folder-name] plan
+```
+
+Assuming the plan outlined on screen reflects changes that need to be made, you can now create apply those changes by running
+
+```
+bash bin/deploy_infra.sh [environment-folder-name] create
+```
+
+---
+**Note:**
+When `auto_deployments_enabled` is set to `true` in main.tf, each repository change (new image version) starts a deployment. Should you set `auto_deployment_enabled` to `false`, you will need to manually update the `image_identifier` in main.tf to point to the latest container image to deploy and rerun the following
+
+```
+bash bin/deploy_infra.sh [environment-folder-name] create
+```
+---
+
+## How to remove
+
+1. Run the following commands, replacing ```[environment-folder-name]``` accordingly:
+
+```
+cd infrastructure/
+bash bin/deploy_infra.sh [environment-folder-name] destroy
+```
+
 A github action is set to build the docker image on push
