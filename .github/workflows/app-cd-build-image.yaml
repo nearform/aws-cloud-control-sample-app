@@ -4,7 +4,6 @@ on:
   push:
     branches: 
       - master
-      - wip_ecr_deploy
 
   workflow_dispatch: 
 
