@@ -73,3 +73,5 @@ bash bin/deploy_infra.sh [environment-folder-name] create
 cd infrastructure/
 bash bin/deploy_infra.sh [environment-folder-name] destroy
 ```
+
+A github action is set to build the docker image on push
