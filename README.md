@@ -29,3 +29,5 @@ npm run build
 ```
 npm run serve
 ```
+
+A github action is set to build the docker image on push
