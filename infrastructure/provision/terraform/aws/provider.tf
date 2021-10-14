@@ -14,5 +14,6 @@ provider "aws" {
 
 # Configure the AWS Cloud Control Provider
 provider "awscc" {
-  region = var.region
+  profile = var.aws_profile_name
+  region  = var.region
 }
