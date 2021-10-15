@@ -9,8 +9,7 @@ on:
 
 env:
   AWS_REGION: eu-west-1
-  ECR_REPO_NAME: ${{ secrets.REPO_NAME || "artist-info" }}
-  ECR_REPO_STATE:  "{\"RepositoryName\": ${{ env.ECR_REPO_NAME }},\"ImageTagMutability\":\"MUTABLE\"}"
+  ECR_REPO_STATE:  "{\"RepositoryName\": ${{ secrets.REPO_NAME }},\"ImageTagMutability\":\"MUTABLE\"}"
  
 
 jobs:
@@ -37,7 +36,7 @@ jobs:
 
     - name: Check if repo exists
       run: |
-        aws cloudcontrol get-resource --type-name AWS::ECR::Repository --identifier ${{ env.ECR_REPO_NAME }}
+        aws cloudcontrol get-resource --type-name AWS::ECR::Repository --identifier ${{ secrets.REPO_NAME }}
 
     - name: Create repo if it doesn't exist
       if: ${{ failure() }}
@@ -48,7 +47,7 @@ jobs:
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ env.ECR_REPO_NAME }}
+        ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
         IMAGE_TAG: latest
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
