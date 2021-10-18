@@ -9,7 +9,10 @@ on:
 
 env:
   AWS_REGION: eu-west-1
-  ECR_REPO_STATE:  "{\"RepositoryName\": ${{ secrets.REPO_NAME }},\"ImageTagMutability\":\"MUTABLE\"}"
+  ECR_REPO_STATE:  >
+    { "RepositoryName": ${{ secrets.REPO_NAME }},
+      "ImageTagMutability": "MUTABLE"
+    }
  
 
 jobs:
