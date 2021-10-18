@@ -11,7 +11,7 @@ env:
   AWS_REGION: eu-west-1
   REPO_NAME: artist-info
   ECR_REPO_STATE: >
-   {"RepositoryName": ${{ env.REPO_NAME }}, "ImageTagMutability": "MUTABLE"}
+   {"RepositoryName": $REPO_NAME, "ImageTagMutability": "MUTABLE"}
  
 
 jobs:
