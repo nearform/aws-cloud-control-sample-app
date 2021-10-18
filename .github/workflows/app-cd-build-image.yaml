@@ -11,7 +11,7 @@ env:
   AWS_REGION: eu-west-1
   REPO_NAME: artist-info
   ECR_REPO_STATE: >
-   {"RepositoryName": $REPO_NAME, "ImageTagMutability": "MUTABLE"}
+   {"RepositoryName": "artist-info", "ImageTagMutability": "MUTABLE"}
  
 
 jobs:
@@ -38,7 +38,7 @@ jobs:
 
     - name: Check if repo exists
       run: |
-        aws cloudcontrol get-resource --type-name AWS::ECR::Repository --identifier $REPO_NAME
+        aws cloudcontrol get-resource --type-name AWS::ECR::Repository --identifier artist-info
 
     - name: Create repo if it doesn't exist
       if: ${{ failure() }}
