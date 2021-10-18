@@ -10,8 +10,6 @@ on:
 env:
   AWS_REGION: eu-west-1
   REPO_NAME: artist-info
-  ECR_REPO_STATE: ' {\"RepositoryName\": \"artist-test\", \"ImageTagMutability\": \"MUTABLE\"} '
- 
 
 jobs:
 
@@ -36,13 +34,14 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Check if repo exists
+      continue-on-error: true
       run: |
         aws cloudcontrol get-resource --type-name AWS::ECR::Repository --identifier artist-info
 
     - name: Create repo if it doesn't exist
       if: ${{ failure() }}
       run: |
-        aws cloudcontrol create-resource --type-name AWS::ECR::Repository --desired-state $ECR_REPO_STATE
+        aws cloudcontrol create-resource --type-name AWS::ECR::Repository --desired-state '{"RepositoryName": "artist-test", "ImageTagMutability": "MUTABLE"}'
 
     - name: Build, tag, push image to ECR
       id: build-image
