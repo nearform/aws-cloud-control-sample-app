@@ -10,7 +10,7 @@ on:
 env:
   AWS_REGION: eu-west-1
   REPO_NAME: artist-info
-  ECR_REPO_STATE: '{"RepositoryName": "artist-info", "ImageTagMutability": "MUTABLE"}'
+  ECR_REPO_STATE: ' {\"RepositoryName\": \"artist-test\", \"ImageTagMutability\": \"MUTABLE\"} '
  
 
 jobs:
