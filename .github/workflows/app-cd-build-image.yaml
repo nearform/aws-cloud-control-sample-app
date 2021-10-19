@@ -11,7 +11,8 @@ env:
   AWS_REGION: eu-west-1
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  ECR_REPOSITORY: ${{ secrets.REPO_NAME || 'artist-info' }}
+  AWS_ACCESS_ROLE_ARN: ${{ secrets.AWS_ACCESS_ROLE_ARN }}
+  ECR_REPOSITORY: artist-info
 
 jobs:
 
@@ -20,23 +21,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
 
-      - id: login-ecr
+      - name: Login to Amazon ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: setup sdk
         run: npm install aws-sdk
 
-      - uses: actions/github-script@v5
+      - name: Check and create repo if needed
+        uses: actions/github-script@v5
         with:
-          repository: aws-sdk
           script: |
             const AWS = require('aws-sdk')
             const cloudcontrol = new AWS.CloudControl()
             const { ECR_REPOSITORY } = process.env
-            //const resource = `arn:aws:ecr:${AWS_REGION}:${account_id}:repository/${ECR_REPOSITORY}`
-
-            return
+            //const resource = `arn:aws:ecr:${AWS_REGION}:${ACCOUNT_ID}:repository/${ECR_REPOSITORY}`
 
             try {
               await cloudcontrol.getResource({
@@ -59,12 +60,69 @@ jobs:
 
             }
 
-      - name: docker build
-        id:   build-image
-        env: 
+      - name: Build, tag, and push image to Amazon ECR
+        id:   push-to-ecr
+        env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"
-    
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"   
+
+      - name: Check and create app runner if needed
+        uses: actions/github-script@v5
+        env: 
+          IMAGE_NAME: ${{ steps.push-to-ecr.outputs.name }}
+        with:
+          script: |
+            const AWS = require('aws-sdk')
+            const cloudcontrol = new AWS.CloudControl()
+            const { ECR_REPOSITORY, IMAGE_NAME } = process.env
+            const SERVICE_NAME = `${ECR_REPOSITORY}-service`
+            try {
+              await cloudcontrol.getResource({
+                "TypeName": "AWS::AppRunner::Service",
+                "Identifier": SERVICE_NAME
+              }).promise()
+
+            } catch (e) {
+              // service doesn't exist, create it
+              console.log('------------==> image name', IMAGE_NAME)
+
+              const params = {
+                "TypeName" : "AWS::AppRunner::Service",
+                "DesiredState" : `{
+                    "HealthCheckConfiguration": {
+                      HealthyThreshold: 1,
+                      Interval: 10,
+                      Path: '/',
+                      Protocol: 'HTTP',
+                      Timeout: 10,
+                      UnhealthyThreshold: 5
+                    },
+                    "InstanceConfiguration" : {
+                      "Cpu" : "1 vCPU",
+                      "Memory" : "2 GB"
+                    },
+                    "ServiceName" : ${SERVICE_NAME},
+                    "SourceConfiguration" : {
+                      ImageRepository: {
+                        "ImageConfiguration" : {
+                          "Port" : "5000",
+                        },
+                        "ImageIdentifier" : ${IMAGE_NAME},
+                        "ImageRepositoryType" : "ECR"
+                      }
+                    },
+                    "Tags" : [  ]
+                  }`
+              }
+
+              try {
+                const response = await cloudcontrol.createResource(params).promise()
+                console.log('Service created', response)
+              } catch(err) {
+                console.log('Failed to create service', err)
+              }
+            }
