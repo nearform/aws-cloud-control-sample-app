@@ -10,6 +10,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "aws-sdk": "^2.1009.0",
     "axios": "^0.22.0",
     "bootstrap": "^5.1.1",
     "react": "^17.0.0",

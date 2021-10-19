@@ -11,8 +11,7 @@ env:
   AWS_REGION: eu-west-1
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  REPO_NAME: ${{ secrets.REPO_NAME }}
-  DEFAULT_REPO_NAME: artist-info
+  ECR_REPOSITORY: ${{ secrets.REPO_NAME || 'artist-info' }}
 
 jobs:
 
@@ -22,6 +21,8 @@ jobs:
 
     steps:
 
+      - id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
       - name: setup sdk
         run: npm install aws-sdk
@@ -32,27 +33,38 @@ jobs:
           script: |
             const AWS = require('aws-sdk')
             const cloudcontrol = new AWS.CloudControl()
-            const { REPO_NAME, DEFAULT_REPO_NAME } = process.env
-            const ecrRepository = REPO_NAME || DEFAULT_REPO_NAME
+            const { ECR_REPOSITORY } = process.env
+            //const resource = `arn:aws:ecr:${AWS_REGION}:${account_id}:repository/${ECR_REPOSITORY}`
+
+            return
 
             try {
               await cloudcontrol.getResource({
                 "TypeName": "AWS::ECR::Repository",
-                "Identifier": ecrRepository
+                "Identifier": ECR_REPOSITORY
               }).promise()
 
             } catch (e) {
               // aws repo does not exist - create it
-              console.error('failed - will create repo!',e)
 
               const response = await cloudcontrol.createResource({
                 TypeName: "AWS::ECR::Repository",
                 DesiredState: `{
-                  "RepositoryName": ${ecrRepository},
+                  "RepositoryName": ${ECR_REPOSITORY},
                   "ImageTagMutability": "MUTABLE"
                 }`
               }).promise()
 
-              console.log(response)
+              return response
 
             }
+
+      - name: docker build
+        id:   build-image
+        env: 
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+    
