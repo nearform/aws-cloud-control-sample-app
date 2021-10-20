@@ -1,57 +1,62 @@
 const AWS = require('aws-sdk')
+
 const cloudcontrol = new AWS.CloudControl()
 
-const { ECR_REPOSITORY, ECR_IMAGE_NAME } = process.env
-const SERVICE_NAME = `${ECR_REPOSITORY}-service`
+const { ECR_REPOSITORY_NAME, ECR_IMAGE_NAME, AWS_ACCOUNT_ID } = process.env
+const serviceName = `${ECR_REPOSITORY_NAME}-service`
 
-;(async function () {
-  try {
-    await cloudcontrol
-      .getResource({
-        TypeName: 'AWS::AppRunner::Service',
-        Identifier: SERVICE_NAME
-      })
-      .promise()
-    console.log('App runner service exists. Skipping creation.')
-  } catch (e) {
-    // service doesn't exist, create it
+const TypeName = 'AWS::AppRunner::Service'
 
-    const desiredState = {
-      HealthCheckConfiguration: {
-        HealthyThreshold: 1,
-        Interval: 10,
-        Path: '/',
-        Protocol: 'HTTP',
-        Timeout: 10,
-        UnhealthyThreshold: 5
+async function run() {
+  const services = await cloudcontrol
+    .listResources({
+      TypeName
+    })
+    .promise()
+
+  const service = services.ResourceDescriptions.find(
+    r => JSON.parse(r.Properties).ServiceName === serviceName
+  )
+
+  if (service) {
+    return console.log(
+      `App runner service ${serviceName} exists. Skipping creation`
+    )
+  }
+
+  const desiredState = {
+    ServiceName: serviceName,
+    SourceConfiguration: {
+      AuthenticationConfiguration: {
+        AccessRoleArn: `arn:aws:iam::${AWS_ACCOUNT_ID}:role/service-role/AppRunnerECRAccessRole`
       },
-      InstanceConfiguration: {
-        Cpu: '1 vCPU',
-        Memory: '2 GB'
-      },
-      ServiceName: SERVICE_NAME,
-      SourceConfiguration: {
-        ImageRepository: {
-          ImageConfiguration: {
-            Port: '5000'
-          },
-          ImageIdentifier: ECR_IMAGE_NAME,
-          ImageRepositoryType: 'ECR'
-        }
-      },
-      Tags: []
-    }
-
-    const resource = {
-      TypeName: 'AWS::AppRunner::Service',
-      DesiredState: JSON.stringify(desiredState)
-    }
-
-    try {
-      const response = await cloudcontrol.createResource(resource).promise()
-      console.log('App Runner service created', response)
-    } catch (err) {
-      console.log('Failed to create App Runner service', err)
+      ImageRepository: {
+        ImageConfiguration: {
+          Port: '5000'
+        },
+        ImageIdentifier: `${ECR_IMAGE_NAME}:latest`,
+        ImageRepositoryType: 'ECR'
+      }
     }
   }
-})()
+
+  const resource = {
+    TypeName: TypeName,
+    DesiredState: JSON.stringify(desiredState)
+  }
+
+  try {
+    const response = await cloudcontrol.createResource(resource).promise()
+    console.log('App Runner service creation', response)
+
+    await cloudcontrol
+      .waitFor('resourceRequestSuccess', {
+        RequestToken: response.ProgressEvent.RequestToken
+      })
+      .promise()
+  } catch (err) {
+    console.error('Failed to create App Runner service', err)
+  }
+}
+
+return run()

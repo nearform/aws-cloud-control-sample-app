@@ -1,17 +1,13 @@
-name: App Runner CI
+name: Docker Image CI
 
 on:
   push:
     branches:
       - master
-
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  ECR_REPOSITORY: artist-info
+  ECR_REPOSITORY_NAME: artist-info
 
 jobs:
   build:
@@ -20,31 +16,35 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Login to Amazon ECR
-        id: login-ecr
+      - id: login-aws
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: setup sdk
-        run: npm install aws-sdk
+      - run: npm install aws-sdk
 
-      - name: Check and create repo if needed
-        id: create-ecr-repo
+      - id: create-ecr-repo
         uses: actions/github-script@v5
         with:
           script: require('./.github/workflows/ecr_setup.js')
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: push-to-ecr
+      - id: push-to-ecr
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+          ECR_IMAGE_NAME=$ECR_REGISTRY/$ECR_REPOSITORY_NAME
+          docker build -t $ECR_IMAGE_NAME  .
+          docker push $ECR_IMAGE_NAME
+          echo "::set-output name=image::$ECR_IMAGE_NAME"
 
-      - name: Check and create app runner if needed
+      - uses: actions/github-script@v5
         env:
+          AWS_ACCOUNT_ID: ${{ steps.login-aws.outputs.aws-account-id }}
           ECR_IMAGE_NAME: ${{ steps.push-to-ecr.outputs.image }}
-        uses: actions/github-script@v5
         with:
           script: require('./.github/workflows/apprunner_setup.js')

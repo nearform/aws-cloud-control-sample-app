@@ -1,13 +1,14 @@
 {
-  "name": "artist-info",
+  "name": "aws-cloud-control-sample-app",
   "version": "1.0.0",
   "main": "main.jsx",
-  "description": "A sample app for a docker image in App Runner",
+  "description": "A sample app for AWS Cloud Control and App Runner",
   "author": "Jeremy Sharp <jeremy.sharp@nearform.com>",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "lint": "eslint ."
   },
   "dependencies": {
     "aws-sdk": "^2.1009.0",
@@ -19,6 +20,10 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^1.0.0",
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1",
     "vite": "^2.6.4"
   }
 }
