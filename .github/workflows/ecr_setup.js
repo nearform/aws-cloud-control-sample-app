@@ -31,4 +31,4 @@ async function run() {
   }
 }
 
-return run()
+module.exports = run()
