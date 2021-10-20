@@ -2,7 +2,7 @@ const AWS = require('aws-sdk')
 const cloudcontrol = new AWS.CloudControl()
 
 const { ECR_REPOSITORY, ECR_IMAGE_NAME } = process.env
-const SERVICE_NAME = `${ECR_REPOSITORY}-service2`
+const SERVICE_NAME = `${ECR_REPOSITORY}-service`
 
 ;(async function () {
   try {
