@@ -26,13 +26,11 @@ async function getArtist(artist) {
     const artistData = await fetchArtist(artistId)
     const { name, type, country, disambiguation, relations = [] } = artistData
     let urls = relations
-      .filter((relation) => relation.url)
-      .map((relation) => ({ type: relation.type, url: relation.url.resource }))
+      .filter(relation => relation.url)
+      .map(relation => ({ type: relation.type, url: relation.url.resource }))
     return { name, type, country, disambiguation, urls }
   } catch (e) {
-    console.error(e)
     return 'none'
   }
-  return JSON.stringify(artistList)
 }
 export default getArtist
