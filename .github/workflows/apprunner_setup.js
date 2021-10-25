@@ -28,7 +28,7 @@ async function run() {
     ServiceName: serviceName,
     SourceConfiguration: {
       AuthenticationConfiguration: {
-        AccessRoleArn: `arn:aws:iam::${AWS_ACCOUNT_ID}:role/service-role/AppRunnerECRAccessRole`
+        AccessRoleArn: `arn:aws:iam::${AWS_ACCOUNT_ID}:role/service-role/AppRunnerECRAccessRole`,
       },
       ImageRepository: {
         ImageConfiguration: {
@@ -36,7 +36,8 @@ async function run() {
         },
         ImageIdentifier: `${ECR_IMAGE_NAME}:latest`,
         ImageRepositoryType: 'ECR'
-      }
+      },
+      AutoDeploymentsEnabled: true
     }
   }
 
